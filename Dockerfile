@@ -17,25 +17,17 @@ ENV DJANGO_ENV=${DJANGO_ENV} \
 	POETRY_VIRTUALENVS_CREATE=false \
 	POETRY_CACHE_DIR='/var/cache/pypoetry'
 
-# Section 3- Compiler and OS libraries
-RUN apt-get update \
-	&& apt-get install --no-install-recommends -y \
-    bash \
-    build-essential \
-    curl \
-    gettext \
-    git \
-    libpq-dev \
-    wget \
-	# Cleaning cache:
-	&& apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* \
-	&& pip install "poetry==$POETRY_VERSION" && poetry --version
+COPY ./code /code
+COPY pyproject.toml poetry.lock /code/
 
 # set work directory
 WORKDIR /code
-COPY pyproject.toml poetry.lock /code/
+EXPOSE 8000
 
-# Install dependencies:
-RUN poetry install
-# copy project
-COPY . .
+#adduser: 如果沒有 create user，這樣產生出來的檔案都會是 root 權限
+RUN pip install "poetry==$POETRY_VERSION" && poetry --version \
+	&& poetry install \
+	&& adduser --disabled-password --no-create-home code 
+
+#用 user 可以指定使用者權限來寫入特定的 volume 
+USER code
