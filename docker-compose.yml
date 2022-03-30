@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
     web:
-        image: "folio-backend:dev"
+        image: "folio-venv:dev"
         build:
             target: development_build
             context: .
@@ -25,8 +25,8 @@ services:
         restart: unless-stopped
         env_file:
             - ./.env.dev
-        # volumes:
-        #     - postgres_data:/var/lib/postgresql/data/
+        volumes:
+            - postgres_data:/var/lib/postgresql/data/
 
-# volumes:
-#     postgres_data:
+volumes:
+    postgres_data:
